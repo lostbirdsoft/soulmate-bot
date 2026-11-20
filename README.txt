@@ -44,3 +44,20 @@ SOULMATE MINI APP (v1) - лента анкет на весь экран
        MINIAPP_UPLOAD: true,          // false — без загрузки новых фото из приложения (удалять и менять порядок можно)
        MINIAPP_UPLOAD_MAX_MB: 6,
    - Миграция БД не нужна. Нужно выложить новую папку miniapp/ на хостинг и сделать npm run deploy (/setup заново не нужен).
+
+7) ВХОД ЧЕРЕЗ TELEGRAM ВНЕ TELEGRAM (v23: браузер, PWA, потом APK)
+   Внутри Telegram мини-апп входит по подписи Telegram, как раньше. Вне Telegram показывается кнопка «Увійти через Telegram»
+   (OpenID Connect от Telegram). Вход даёт тот же Telegram-аккаунт, что и в боте, поэтому ничего связывать не нужно.
+   Включение (по умолчанию выключено, ничего не меняется, пока не включишь):
+   а) @BotFather -> мини-апп BotFather -> твой бот -> Login Widget -> Allowed URLs, добавить ДВА адреса:
+        https://lostbirdsoft.github.io
+        https://soulmate-bot.lostbirdsoft.workers.dev/auth/telegram/callback
+      Там же BotFather покажет Client ID и Client Secret.
+   б) Секрет в Cloudflare:  npx wrangler secret put TG_LOGIN_CLIENT_SECRET   (вставить Client Secret; остальные секреты не затрагивает)
+   в) В src/config.js добавить:  TG_LOGIN_ENABLED: true,
+      Если Client ID из BotFather НЕ совпадает с номером бота (число до двоеточия в BOT_TOKEN), добавить и  TG_LOGIN_CLIENT_ID: "число",
+      Срок входа: MINIAPP_SESSION_DAYS (по умолчанию 30 дней).
+   г) npm run deploy, затем выложить новую папку miniapp/ (через workflow).
+   Проверка: открыть https://lostbirdsoft.github.io/soulmate-bot/ в обычном браузере -> «Увійти через Telegram» -> подтвердить в Telegram
+   -> должна открыться лента. Кнопка 👤 -> внизу «Вийти з акаунта».
+   Важно: в анкете должен быть создан бот (регистрация идёт в боте); если анкеты нет, приложение скажет об этом.
